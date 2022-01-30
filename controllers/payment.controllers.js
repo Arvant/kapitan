@@ -1,4 +1,6 @@
 let PaymentModel = require("../models/payment.models");
+const jwt = require("jsonwebtoken");
+const config = require("../config/consts.config");
 function genRandomCode() {
   const min = 1000;
   const max = 9999;
@@ -8,12 +10,17 @@ function genRandomCode() {
 async function create(req, res) {
   console.log(req.body);
   const { plan } = req.body.data;
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  const decoded = jwt.verify(token, config.jwtSecret);
+  const user = decoded.user;
   const code = genRandomCode();
   const link = `https://bank/payment/${code}`;
   const state = "sent";
   let newPayment = new PaymentModel({
     plan,
     code,
+    user,
   });
 
   let payment = await newPayment.save();
@@ -28,7 +35,20 @@ async function create(req, res) {
     },
   });
 }
-
+async function list(req, res) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  const decoded = jwt.verify(token, config.jwtSecret);
+  const user = decoded.user;
+  const payments = await PaymentModel.find({ user });
+  res.json({
+    success: true,
+    data: {
+      payments,
+    },
+  });
+}
 module.exports = {
   create,
+  list,
 };
