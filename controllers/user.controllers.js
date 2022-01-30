@@ -1,3 +1,4 @@
+const userModels = require("../models/user.models");
 let UserModel = require("../models/user.models");
 function genRandomCode() {
   const min = 1000;
@@ -23,8 +24,19 @@ async function register(req, res) {
     },
   });
 }
-function login(req, res) {
-  res.json({ success: true });
+async function login(req, res) {
+  const { email, password, code } = req.body.data;
+  const user = await userModels.findOne({ email, password, code });
+  if (user) {
+    res.json({
+      success: true,
+      token: "test",
+    });
+  } else {
+    res.status(404).json({
+      success: false,
+    });
+  }
 }
 module.exports = {
   register,
