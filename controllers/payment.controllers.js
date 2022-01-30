@@ -5,25 +5,18 @@ function genRandomCode() {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function create(req, res) {
+async function create(req, res) {
   console.log(req.body);
   const { plan } = req.body.data;
   const code = genRandomCode();
   const link = `https://bank/payment/${code}`;
   const state = "sent";
-  let payment = new PaymentModel({
+  let newPayment = new PaymentModel({
     plan,
     code,
   });
 
-  payment
-    .save()
-    .then((doc) => {
-      console.log(doc);
-    })
-    .catch((err) => {
-      console.error(err);
-    });
+  let payment = await newPayment.save();
 
   res.json({
     success: true,
