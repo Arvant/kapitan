@@ -1,4 +1,6 @@
 const userModels = require("../models/user.models");
+const config = require("../config/consts.config");
+const jwt = require("jsonwebtoken");
 let UserModel = require("../models/user.models");
 function genRandomCode() {
   const min = 1000;
@@ -28,9 +30,10 @@ async function login(req, res) {
   const { email, password, code } = req.body.data;
   const user = await userModels.findOne({ email, password, code });
   if (user) {
+    const token = jwt.sign({ user: user._id }, config.jwtSecret);
     res.json({
       success: true,
-      token: "test",
+      token,
     });
   } else {
     res.status(404).json({
