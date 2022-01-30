@@ -15,7 +15,7 @@ async function create(req, res) {
   const decoded = jwt.verify(token, config.jwtSecret);
   const user = decoded.user;
   const code = genRandomCode();
-  const link = `https://bank/payment/${code}`;
+  const link = `https://bank.com/payment/${code}`;
   const state = "sent";
   let newPayment = new PaymentModel({
     plan,
